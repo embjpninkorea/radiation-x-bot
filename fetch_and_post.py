@@ -3,15 +3,25 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import tweepy
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+}
 
 # ① ②：福島データ
 def get_fukushima(station_no):
     url = f"http://www.atom-moc.pref.fukushima.jp/public/table/Table.html?stationNo={station_no}&type=0"
-    r = requests.get(url)
+    r = requests.get(url, headers=HEADERS, timeout=15)
     soup = BeautifulSoup(r.text, "html.parser")
+
     table = soup.find("table")
-    latest = table.find_all("td")[-1].text.strip()
-    return latest
+    if table is None:
+        return "取得失敗（tableなし）"
+
+    tds = table.find_all("td")
+    if not tds:
+        return "取得失敗（tdなし）"
+
+    return tds[-1].text.strip()
 
 # ③：新宿放射線
 def get_nsr_shinjuku():
