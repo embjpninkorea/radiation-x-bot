@@ -85,9 +85,11 @@ if __name__ == "__main__":
     )
 
     # X 投稿
-    auth = tweepy.OAuth1UserHandler(
-        os.environ["CONSUMER_KEY"], os.environ["CONSUMER_SECRET"],
-        os.environ["ACCESS_TOKEN"], os.environ["ACCESS_SECRET"]
-    )
-    api = tweepy.API(auth)
-    api.update_status(message)
+client = tweepy.Client(
+    consumer_key=os.environ["CONSUMER_KEY"],
+    consumer_secret=os.environ["CONSUMER_SECRET"],
+    access_token=os.environ["ACCESS_TOKEN"],
+    access_token_secret=os.environ["ACCESS_SECRET"]
+)
+
+client.create_tweet(text=message)
