@@ -25,11 +25,20 @@ def get_fukushima(station_no):
 
 # ③：新宿放射線
 def get_nsr_shinjuku():
-    url = "https://radioactivity.nsr.go.jp/html/13/13000.html"
-    r = requests.get(url)
-    soup = BeautifulSoup(r.text, "html.parser")
-    vals = soup.select("table")[0].find_all("td")
-    return vals[-1].text.strip()
+    # 東京都（新宿）の最新値CSV
+    url = "https://radioactivity.nsr.go.jp/data/13/13000/13000_01.csv"
+    r = requests.get(url, headers=HEADERS, timeout=15)
+
+    if r.status_code != 200:
+        return "取得失敗"
+
+    lines = r.text.splitlines()
+    if len(lines) < 2:
+        return "取得失敗"
+
+    # 最終行の線量値（µSv/h）
+    last = lines[-1].split(",")
+    return last[-1]
 
 # ④：Guro
 def get_iernet_guro():
