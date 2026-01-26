@@ -42,16 +42,32 @@ def get_nsr_shinjuku():
 
 # ④：Guro
 def get_iernet_guro():
-    url = "https://iernet.kins.re.kr/second_index.asp?sido=1&ke_flag=E"
-    r = requests.get(url)
-    soup = BeautifulSoup(r.text, "html.parser")
-    table = soup.find("table", {"id": "GridView1"})
-    rows = table.find_all("tr")
-    for r in rows:
-        cols = r.find_all("td")
-        if cols and "Guro" in cols[0].text:
-            return cols[1].text.strip()
-    return "N/A"
+    # Seoul 地域の放射線量 CSV
+    url = "https://iernet.kins.re.kr/data/iernet_radiation_seoul.csv"
+    r = requests.get(url, headers=HEADERS, timeout=15)
+
+    if r.status_code != 200:
+        return "取得失敗"
+
+    lines = r.text.splitlines()
+    if len(lines) < 2:
+        return "取得失敗"
+
+    header = lines[0].split(",")
+    guro_index = None
+
+    # ヘッダから Guro 列を探す
+    for i, col in enumerate(header):
+        if "Guro" in col:
+            guro_index = i
+            break
+
+    if guro_index is None:
+        return "取得失敗（Guro列なし）"
+
+    # 最新行
+    last = lines[-1].split(",")
+    return last[guro_index]
 
 if __name__ == "__main__":
     # 取得
