@@ -1,0 +1,31 @@
+name: Daily Radiation Check
+
+on:
+  schedule:
+    - cron: '30 3 * * 1-5'   # 平日 12:30 JST（UTC+9 → 03:30 UTC）
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリ取得
+        uses: actions/checkout@v4
+
+      - name: Pythonセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: ライブラリインストール
+        run: pip install -r requirements.txt
+
+      - name: スクリプト実行
+        run: python fetch_and_post.py
+
+      - name: 出力保存
+        uses: actions/upload-artifact@v4
+        with:
+          name: radiation-output
+          path: output.txt
